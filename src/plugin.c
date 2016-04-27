@@ -65,7 +65,7 @@ const char* ts3plugin_name() {
 	/* TeamSpeak expects UTF-8 encoded characters. Following demonstrates a possibility how to convert UTF-16 wchar_t into UTF-8. */
 	static char* result = NULL;  /* Static variable so it's allocated only once */
 	if(!result) {
-		const wchar_t* name = L"Test Plugin";
+		const wchar_t* name = L"Position Test";
 		if(wcharToUtf8(name, &result) == -1) {  /* Convert name into UTF-8 encoded result */
 			result = "Test Plugin";  /* Conversion failed, fallback here */
 		}
@@ -859,6 +859,45 @@ void ts3plugin_onEditPlaybackVoiceDataEvent(uint64 serverConnectionHandlerID, an
 }
 
 void ts3plugin_onEditPostProcessVoiceDataEvent(uint64 serverConnectionHandlerID, anyID clientID, short* samples, int sampleCount, int channels, const unsigned int* channelSpeakerArray, unsigned int* channelFillMask) {
+	int leftHeadhponeChannel = 0;
+	int rightHeadphoneChannel = 0;
+
+	float leftVolume = 0.3f;
+	float rightVolume = 0.6f;
+
+	anyID myID;
+
+
+	for (int i = 0; i < channels; i++) {
+		switch (channelSpeakerArray[i])
+		{
+		case SPEAKER_HEADPHONES_LEFT:
+			leftHeadhponeChannel = i;
+			break;
+		case SPEAKER_HEADPHONES_RIGHT:
+			rightHeadphoneChannel = i;
+			break;
+		default:
+			////get myID
+			//if (ts3Functions.getClientID(serverConnectionHandlerID, &myID) != ERROR_ok) {
+			//	ts3Functions.logMessage("Error querying own client id", LogLevel_ERROR, "Plugin", serverConnectionHandlerID);
+			//	return;
+			//}
+
+			////USE THIS FOR DEBUG IF YOU NEED IT
+			//if (ts3Functions.requestSendPrivateTextMsg(serverConnectionHandlerID, "run", myID, NULL) != ERROR_ok) {
+			//	ts3Functions.logMessage("Error requesting send text message", LogLevel_ERROR, "Plugin", serverConnectionHandlerID);
+			//}
+			break;
+		}
+	}
+
+	for (int i = leftHeadhponeChannel; i < sampleCount * channels; i += channels) {
+		samples[i] = (short)(samples[i] * leftVolume);
+	}
+	for (int i = rightHeadphoneChannel; i < sampleCount * channels; i += channels) {
+		samples[i] = (short)(samples[i] * rightVolume);
+	}
 }
 
 void ts3plugin_onEditMixedPlaybackVoiceDataEvent(uint64 serverConnectionHandlerID, short* samples, int sampleCount, int channels, const unsigned int* channelSpeakerArray, unsigned int* channelFillMask) {

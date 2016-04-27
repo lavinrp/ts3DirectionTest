@@ -1,0 +1,12 @@
+*.pdf
+*.suo
+*.obj
+*.log
+*.tlog
+*.pdb
+*.opendb
+*.db
+*.dll
+*.exp
+*.ilk
+*.lib
